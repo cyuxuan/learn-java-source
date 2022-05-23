@@ -37,12 +37,12 @@ public class Client {
         /**
          * socket连接对象
          */
-        private Socket socket;
+        private final Socket socket;
 
         /**
          * 构造方法：传入socket连接对象
          *
-         * @param socket
+         * @param socket 连接对象
          */
         MsgReciver(Socket socket) {
             this.socket = socket;

@@ -39,7 +39,7 @@ public class Server {
         /**
          * 当前线程的socket连接对象
          */
-        private Socket socket;
+        private final Socket socket;
 
         /**
          * 构造函数：初始换socket丽连接对象
@@ -62,9 +62,7 @@ public class Server {
                     System.out.println("客户端【" + Thread.currentThread().getId() + "】说：" + msg);
                     // 群发消息
                     for (Socket socketItem : Server.socketList) {
-                        if(this.socket == socketItem) {
-                            continue;
-                        } else {
+                        if (this.socket != socketItem) {
                             PrintWriter printWriter = new PrintWriter(socketItem.getOutputStream());
                             printWriter.println("客户端【" + Thread.currentThread().getId() + "】说：" + msg);
                             printWriter.flush();
