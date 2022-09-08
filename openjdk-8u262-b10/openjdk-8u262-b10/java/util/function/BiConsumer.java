@@ -50,7 +50,7 @@ public interface BiConsumer<T, U> {
      * @param t the first input argument
      * @param u the second input argument
      */
-    void accept(T t, U u);
+    void    accept(T t, U u);
 
     /**
      * Returns a composed {@code BiConsumer} that performs, in sequence, this

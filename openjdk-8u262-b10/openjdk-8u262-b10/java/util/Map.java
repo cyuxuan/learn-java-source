@@ -135,6 +135,7 @@ public interface Map<K,V> {
      * <tt>Integer.MAX_VALUE</tt>.
      *
      * @return the number of key-value mappings in this map
+     * 返回【映射容器】中键值对个数
      */
     int size();
 
@@ -142,15 +143,19 @@ public interface Map<K,V> {
      * Returns <tt>true</tt> if this map contains no key-value mappings.
      *
      * @return <tt>true</tt> if this map contains no key-value mappings
-     */
+     * 判断【映射容器】中是否没有键值对存在
+     * /
     boolean isEmpty();
 
     /**
-     * Returns <tt>true</tt> if this map contains a mapping for the specified
-     * key.  More formally, returns <tt>true</tt> if and only if
+     * Returns <tt>true</tt> if this map contains a mapping for the specified(指定的)
+     * key.  More formally(正式地/确切地), returns <tt>true</tt> if and only if
      * this map contains a mapping for a key <tt>k</tt> such that
      * <tt>(key==null ? k==null : key.equals(k))</tt>.  (There can be
      * at most one such mapping.)
+     * -------
+     * （at most = 最多）
+     * （at most one = 最多一个）
      *
      * @param key key whose presence in this map is to be tested
      * @return <tt>true</tt> if this map contains a mapping for the specified
@@ -161,6 +166,7 @@ public interface Map<K,V> {
      * @throws NullPointerException if the specified key is null and this map
      *         does not permit null keys
      * (<a href="{@docRoot}/java/util/Collection.html#optional-restrictions">optional</a>)
+     * 容器是否包含某个键
      */
     boolean containsKey(Object key);
 
@@ -171,6 +177,12 @@ public interface Map<K,V> {
      * <tt>(value==null ? v==null : value.equals(v))</tt>.  This operation
      * will probably require time linear in the map size for most
      * implementations of the <tt>Map</tt> interface.
+     * -------
+     * （linear = 线性的）
+     * （at least = 至少）
+     * （at least one = 至少一个）
+     * （implementations = 实现）
+     * （most implementations = 大多数实现）
      *
      * @param value value whose presence in this map is to be tested
      * @return <tt>true</tt> if this map maps one or more keys to the
@@ -181,6 +193,7 @@ public interface Map<K,V> {
      * @throws NullPointerException if the specified value is null and this
      *         map does not permit null values
      * (<a href="{@docRoot}/java/util/Collection.html#optional-restrictions">optional</a>)
+     * 判断是否存在某个值
      */
     boolean containsValue(Object value);
 
@@ -198,6 +211,11 @@ public interface Map<K,V> {
      * contains no mapping for the key; it's also possible that the map
      * explicitly maps the key to {@code null}.  The {@link #containsKey
      * containsKey} operation may be used to distinguish these two cases.
+     * ---------------
+     * （necessarily = 一定地）
+     * （indicate = 表明）
+     * （explicitly = 显示地）
+     * （distinguish = 区分）
      *
      * @param key the key whose associated value is to be returned
      * @return the value to which the specified key is mapped, or
@@ -208,6 +226,7 @@ public interface Map<K,V> {
      * @throws NullPointerException if the specified key is null and this map
      *         does not permit null keys
      * (<a href="{@docRoot}/java/util/Collection.html#optional-restrictions">optional</a>)
+     * 按照键返回对应的值
      */
     V get(Object key);
 
@@ -220,6 +239,10 @@ public interface Map<K,V> {
      * <tt>m</tt> is said to contain a mapping for a key <tt>k</tt> if and only
      * if {@link #containsKey(Object) m.containsKey(k)} would return
      * <tt>true</tt>.)
+     * ------------
+     * （Associates = 联合）
+     * （previously = 以前地）
+     * （is said = 被说、被称为、被认为）
      *
      * @param key key with which the specified value is to be associated
      * @param value value to be associated with the specified key
@@ -466,9 +489,15 @@ public interface Map<K,V> {
          * @return a comparator that compares {@link Map.Entry} in natural order on key.
          * @see Comparable
          * @since 1.8
+         *
+         * ---------------
+         * （? super K，?一定是K地父类）
+         * （<K extends Comparable<? super K>, V>，表明K一定是K的父类或者自己且继承了Comparable类）
+         * （& Serializable ，强制类型转换）
          */
         public static <K extends Comparable<? super K>, V> Comparator<Map.Entry<K,V>> comparingByKey() {
             return (Comparator<Map.Entry<K, V>> & Serializable)
+                // 函数式编程。实现了其中唯一的抽象方法
                 (c1, c2) -> c1.getKey().compareTo(c2.getKey());
         }
 

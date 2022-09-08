@@ -10,9 +10,13 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>java-net</module>
-        <module>code-demo-spring-1</module>
+        <module>demo-spring</module>
         <module>ioc-container-overview</module>
         <module>spring-bean</module>
+        <module>test</module>
+        <module>concurrent-test</module>
+        <module>oj</module>
+        <module>excel-test</module>
     </modules>
 
     <properties>

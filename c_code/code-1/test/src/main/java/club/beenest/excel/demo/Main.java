@@ -3,6 +3,7 @@ package club.beenest.excel.demo;
 import com.alibaba.excel.EasyExcel;
 
 import java.io.*;
+import java.util.Scanner;
 
 /**
  * 通过poi读取xml文件的所有内容，并输出
@@ -11,11 +12,11 @@ import java.io.*;
  */
 public class Main {
 
-    public static void main(String[] args) throws FileNotFoundException {
-        File file = new File("D:/x.xlsx");
-        FileInputStream is = new FileInputStream(file);
-        EasyExcel.read(is, new CustomExcelListener()).sheet().doRead();
-    }
+//    public static void main(String[] args) throws FileNotFoundException {
+//        File file = new File("D:/x.xlsx");
+//        FileInputStream is = new FileInputStream(file);
+//        EasyExcel.read(is, new CustomExcelListener()).sheet().doRead();
+//    }
 
 
 //    public static void main(String[] args) throws FileNotFoundException {
@@ -38,7 +39,7 @@ public class Main {
 //
 //    }
 
-//    public static void main(String[] args) {
+    public static void main(String[] args) {
 //        Scanner sc = new Scanner(System.in);
 //        int a = sc.nextInt();
 //
@@ -52,5 +53,5 @@ public class Main {
 //        }
 //        long endTime = System.currentTimeMillis();
 //        System.out.println("执行完成，耗时" + (endTime - startTime)/1000 + "秒");
-//    }
+    }
 }

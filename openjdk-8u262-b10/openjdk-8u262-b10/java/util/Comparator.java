@@ -105,6 +105,8 @@ import java.util.Comparators;
  * @see java.io.Serializable
  * @since 1.2
  */
+// 表明这是一个函数式接口
+// 该注解表示当前接口只能有一个抽象方法，即函数式接口只能有一个抽象方法
 @FunctionalInterface
 public interface Comparator<T> {
     /**
@@ -170,6 +172,10 @@ public interface Comparator<T> {
      *          comparator.
      * @see Object#equals(Object)
      * @see Object#hashCode()
+     * 关于这个方法是否为抽象方法有如下解释：https://blog.csdn.net/qq_39552268/article/details/120209339
+     * equals方法是Object中的方法，而所有的类都会继承Object，所以该方法天生就有默认实现，所以不算是抽象方法
+     * 由此函数式接口的定义应该为
+     *  函数式接口(Functional Interface)就是一个有且仅有一个(除和Object中方法有相同签名的外)抽象方法，但是可以有多个非抽象方法的接口
      */
     boolean equals(Object obj);
 
