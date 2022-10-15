@@ -1,0 +1,32 @@
+# 配置服务端口
+server:
+  port: 8080
+  servlet:
+    context-path: /concurrent-test # 设置文根
+
+
+# spring初始化信息
+spring:
+  application:
+    name: concurrent-test # 配置应用名称
+  profiles:
+    active: dev # 配置当前环境信息
+  datasource: # 配置数据库连接信息
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    username: bee
+    password: beenest@666#
+    url: jdbc:mysql://rm-bp1n05ghy5p5fj8s29o.mysql.rds.aliyuncs.com:3306/beenest?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT
+
+
+mybatis:
+  mapper-locations: classpath:/mapper/beenest/*.xml
+
+
+logging:
+  file:
+    name: log/log.log
+  level:
+    root: info
+    club: debug
+

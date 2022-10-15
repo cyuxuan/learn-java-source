@@ -14,6 +14,7 @@
     <modules>
         <module>bean-lifecycle</module>
         <module>ioc-container-overview</module>
+        <module>configuration-metadata</module>
     </modules>
 
     <properties>

@@ -53,7 +53,9 @@ public abstract class BeanFactoryUtils {
 	public static final String GENERATED_BEAN_NAME_SEPARATOR = "#";
 
 	/**
-	 * Cache from name with factory bean prefix to stripped name without dereference.
+	 * Cache from name with factory bean prefix to stripped(剥夺) name without dereference(废弃).
+	 * 存储带有工厂名称前缀的bean，但是不取消他们的引用关系
+	 *
 	 * @since 5.1
 	 * @see BeanFactory#FACTORY_BEAN_PREFIX
 	 */
@@ -83,7 +85,9 @@ public abstract class BeanFactoryUtils {
 		if (!name.startsWith(BeanFactory.FACTORY_BEAN_PREFIX)) {
 			return name;
 		}
+		// 存储映射关系, $xxx$xxx$beanName -> beanName
 		return transformedBeanNameCache.computeIfAbsent(name, beanName -> {
+			// 一直截取&到最后的名称
 			do {
 				beanName = beanName.substring(BeanFactory.FACTORY_BEAN_PREFIX.length());
 			}

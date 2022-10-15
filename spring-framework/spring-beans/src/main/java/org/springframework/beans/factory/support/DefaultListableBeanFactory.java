@@ -148,7 +148,10 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	/** Whether to allow eager class loading even for lazy-init beans. */
 	private boolean allowEagerClassLoading = true;
 
-	/** Optional OrderComparator for dependency Lists and arrays. */
+	/**
+	 * Optional OrderComparator for dependency Lists and arrays.
+	 * 可选依赖列表和数组顺序比较器。
+	 **/
 	@Nullable
 	private Comparator<Object> dependencyComparator;
 
@@ -238,6 +241,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	/**
 	 * Return whether it should be allowed to override bean definitions by registering
 	 * a different definition with the same name, automatically replacing the former.
+	 * 返回是否支持同一个bean名称下bean信息的覆盖，自动替换在此之前的定义
+	 *
 	 * @since 4.1.2
 	 */
 	public boolean isAllowBeanDefinitionOverriding() {
@@ -959,6 +964,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 		if (beanDefinition instanceof AbstractBeanDefinition abd) {
 			try {
+				// 校验BeanDefinition
+				// TODO 确认校验逻辑
 				abd.validate();
 			}
 			catch (BeanDefinitionValidationException ex) {
@@ -967,11 +974,16 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			}
 		}
 
+		// 从bean定义中通过名字获取对应bean
 		BeanDefinition existingDefinition = this.beanDefinitionMap.get(beanName);
 		if (existingDefinition != null) {
+			// bean已经被定义过，则走该逻辑
+
+			// 判断是否允许覆盖已经存在的定义，如果不允许则抛出异常，因为此逻辑中bean已经存在了
 			if (!isAllowBeanDefinitionOverriding()) {
 				throw new BeanDefinitionOverrideException(beanName, beanDefinition, existingDefinition);
 			}
+			// 判断角色权限信息
 			else if (existingDefinition.getRole() < beanDefinition.getRole()) {
 				// e.g. was ROLE_APPLICATION, now overriding with ROLE_SUPPORT or ROLE_INFRASTRUCTURE
 				if (logger.isInfoEnabled()) {
@@ -980,6 +992,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 							existingDefinition + "] with [" + beanDefinition + "]");
 				}
 			}
+			// 判断bean定义信息是否与已经注册的bean定义信息一样
 			else if (!beanDefinition.equals(existingDefinition)) {
 				if (logger.isDebugEnabled()) {
 					logger.debug("Overriding bean definition for bean '" + beanName +
@@ -988,16 +1001,22 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 				}
 			}
 			else {
+				// 如果开启了跟踪功能，则打印日志
 				if (logger.isTraceEnabled()) {
 					logger.trace("Overriding bean definition for bean '" + beanName +
 							"' with an equivalent definition: replacing [" + existingDefinition +
 							"] with [" + beanDefinition + "]");
 				}
 			}
+			// 将bean信息放入到定义信息map中
 			this.beanDefinitionMap.put(beanName, beanDefinition);
 		}
 		else {
+			// bean首次注册时走该逻辑
+
+			// 判断是否为别名
 			if (isAlias(beanName)) {
+				// 判断是否允许bean信息覆盖
 				if (!isAllowBeanDefinitionOverriding()) {
 					String aliasedName = canonicalName(beanName);
 					if (containsBeanDefinition(aliasedName)) {  // alias for existing bean definition
@@ -1011,23 +1030,31 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 					}
 				}
 				else {
+					// 不允许bean信息覆盖，则移除该bean名称
 					removeAlias(beanName);
 				}
 			}
+			// 判断时候又bean已经创建了
 			if (hasBeanCreationStarted()) {
 				// Cannot modify startup-time collection elements anymore (for stable iteration)
+				// 不能修改启动时的集合任何元素，为了稳定的遍历
 				synchronized (this.beanDefinitionMap) {
+					// 存储bean信息
 					this.beanDefinitionMap.put(beanName, beanDefinition);
+					// 用于保证bean顺序
 					List<String> updatedDefinitions = new ArrayList<>(this.beanDefinitionNames.size() + 1);
+
 					updatedDefinitions.addAll(this.beanDefinitionNames);
 					updatedDefinitions.add(beanName);
 					this.beanDefinitionNames = updatedDefinitions;
 					removeManualSingletonName(beanName);
 				}
 			}
+			// 还没有哦bean开始创建时走该逻辑
 			else {
 				// Still in startup registration phase
 				this.beanDefinitionMap.put(beanName, beanDefinition);
+				// 记录初始化bean名称的顺序
 				this.beanDefinitionNames.add(beanName);
 				removeManualSingletonName(beanName);
 			}
@@ -1155,6 +1182,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 	/**
 	 * Update the factory's internal set of manual singleton names.
+	 * 更新工厂内部手动指定的单例名称集合
+	 *
 	 * @param action the modification action
 	 * @param condition a precondition for the modification action
 	 * (if this condition does not apply, the action can be skipped)

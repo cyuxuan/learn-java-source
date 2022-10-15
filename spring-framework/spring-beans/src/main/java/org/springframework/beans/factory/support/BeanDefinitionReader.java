@@ -22,8 +22,8 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.lang.Nullable;
 
 /**
- * Simple interface for bean definition readers that specifies load methods with
- * {@link Resource} and {@link String} location parameters.
+ * Simple interface for bean definition readers(bean定义 读取器) that specifies(指定，说明) load methods(加载方法) with (带有)
+ * {@link Resource} (Resource) and {@link String} location(位置) parameters(参数).
  *
  * <p>Concrete bean definition readers can of course add additional
  * load and register methods for bean definitions, specific to

@@ -179,6 +179,8 @@ public abstract class ClassUtils {
 	 * for example, for class path resource loading (but not necessarily for
 	 * {@code Class.forName}, which accepts a {@code null} ClassLoader
 	 * reference as well).
+	 * 返回一个默认的类加载器使用：通常是当前线程上线问中的类加载器，如果可用：加载ClassUtils的类加载器将被用作最终的保障
+	 *
 	 * @return the default ClassLoader (only {@code null} if even the system
 	 * ClassLoader isn't accessible)
 	 * @see Thread#getContextClassLoader()

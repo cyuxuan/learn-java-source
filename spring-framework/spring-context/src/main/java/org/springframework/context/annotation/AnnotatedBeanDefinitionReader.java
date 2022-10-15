@@ -76,15 +76,18 @@ public class AnnotatedBeanDefinitionReader {
 	 * using the given {@link Environment}.
 	 * @param registry the {@code BeanFactory} to load bean definitions into,
 	 * in the form of a {@code BeanDefinitionRegistry}
-	 * @param environment the {@code Environment} to use when evaluating bean definition
+	 * @param environment the {@code Environment} to use when evaluating(评估，预处理) bean definition
 	 * profiles.
 	 * @since 3.1
 	 */
 	public AnnotatedBeanDefinitionReader(BeanDefinitionRegistry registry, Environment environment) {
 		Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
 		Assert.notNull(environment, "Environment must not be null");
+		// bean注册中心
 		this.registry = registry;
+		// TODO 条件评估，待确认逻辑及用途
 		this.conditionEvaluator = new ConditionEvaluator(registry, environment, null);
+		// 注册bean的注解配置后置处理器
 		AnnotationConfigUtils.registerAnnotationConfigProcessors(this.registry);
 	}
 
@@ -129,6 +132,8 @@ public class AnnotatedBeanDefinitionReader {
 	 * Register one or more component classes to be processed.
 	 * <p>Calls to {@code register} are idempotent; adding the same
 	 * component class more than once has no additional effect.
+	 * 注册一个或者多个需要处理的组件类
+	 *
 	 * @param componentClasses one or more component classes,
 	 * e.g. {@link Configuration @Configuration} classes
 	 */
@@ -236,14 +241,24 @@ public class AnnotatedBeanDefinitionReader {
 	/**
 	 * Register a bean from the given bean class, deriving its metadata from
 	 * class-declared annotations.
+	 * 注册指定的指定的class为bean,获取对应元数据从类定义注解中
+	 *
 	 * @param beanClass the class of the bean
+	 *       bean的类型
 	 * @param name an explicit name for the bean
-	 * @param qualifiers specific qualifier annotations to consider, if any,
+	 *       bena的名称
+	 * @param qualifiers specific qualifier(限定符) annotations to consider(斟酌，端详，讨论), if any,
 	 * in addition to qualifiers at the bean class level
+	 *        指定限定符的注解用于筛选bean, 如果有的话, 除此之外, 还需要考虑bean级别以外的限定符
+	 *
 	 * @param supplier a callback for creating an instance of the bean
 	 * (may be {@code null})
+	 *        创建bean实例后的回调函数
+	 *
 	 * @param customizers one or more callbacks for customizing the factory's
 	 * {@link BeanDefinition}, e.g. setting a lazy-init or primary flag
+	 *		  一个或者多个回调，用于定制工厂的bean定义信息
+	 *
 	 * @since 5.0
 	 */
 	private <T> void doRegisterBean(Class<T> beanClass, @Nullable String name,

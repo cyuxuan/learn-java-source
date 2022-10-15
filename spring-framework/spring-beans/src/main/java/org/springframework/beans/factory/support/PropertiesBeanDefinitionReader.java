@@ -206,6 +206,8 @@ public class PropertiesBeanDefinitionReader extends AbstractBeanDefinitionReader
 	/**
 	 * Load bean definitions from the specified properties file,
 	 * using all property keys (i.e. not filtering by prefix).
+	 * 从指定的properties文件加载bean定义信息
+	 *
 	 * @param resource the resource descriptor for the properties file
 	 * @return the number of bean definitions found
 	 * @throws BeanDefinitionStoreException in case of loading or parsing errors
@@ -254,12 +256,15 @@ public class PropertiesBeanDefinitionReader extends AbstractBeanDefinitionReader
 	public int loadBeanDefinitions(EncodedResource encodedResource, @Nullable String prefix)
 			throws BeanDefinitionStoreException {
 
+		// 日志跟踪开启时打印对应日志
 		if (logger.isTraceEnabled()) {
 			logger.trace("Loading properties bean definitions from " + encodedResource);
 		}
 
+		// 初始化一个 属性-值 字典对象
 		Properties props = new Properties();
 		try {
+			// 获得 bean信息 文件输入流
 			try (InputStream is = encodedResource.getResource().getInputStream()) {
 				if (encodedResource.getEncoding() != null) {
 					// 最终调用java Properties的解析能力，将:或者=的数据解析为 键值对 数据对象存到Properties
@@ -350,6 +355,7 @@ public class PropertiesBeanDefinitionReader extends AbstractBeanDefinitionReader
 	 * @param map a map of {@code name} to {@code property} (String or Object). Property
 	 * values will be strings if coming from a Properties file etc. Property names
 	 * (keys) <b>must</b> be Strings. Class keys must be Strings.
+	 *  map中存储的是属性键值对
 	 * @param prefix a filter within the keys in the map: e.g. 'beans.'
 	 * (can be empty or {@code null})
 	 * @param resourceDescription description of the resource that the
@@ -373,9 +379,13 @@ public class PropertiesBeanDefinitionReader extends AbstractBeanDefinitionReader
 			}
 			if (keyString.startsWith(prefix)) {
 				// Key is of form: prefix<name>.property
+				// 键的形式时 定义的前缀 + name.属性
+				// 获取到的是去掉了前缀后的属性键值对。例如：beans.user.id=1,处理后是user.id=1
 				String nameAndProperty = keyString.substring(prefix.length());
 				// Find dot before property name, ignoring dots in property keys.
+				// 记录属性名称前的dot位置，忽略属性键的dots
 				int sepIdx ;
+				// 记录键的开始位置
 				int propKeyIdx = nameAndProperty.indexOf(PropertyAccessor.PROPERTY_KEY_PREFIX);
 				if (propKeyIdx != -1) {
 					sepIdx = nameAndProperty.lastIndexOf(SEPARATOR, propKeyIdx);
@@ -383,17 +393,22 @@ public class PropertiesBeanDefinitionReader extends AbstractBeanDefinitionReader
 				else {
 					sepIdx = nameAndProperty.lastIndexOf(SEPARATOR);
 				}
+				// 存在dot时执行bean信息注册
 				if (sepIdx != -1) {
+					// bean名称
 					String beanName = nameAndProperty.substring(0, sepIdx);
 					if (logger.isTraceEnabled()) {
 						logger.trace("Found bean name '" + beanName + "'");
 					}
+					// 判断注册中心是否存在对应bean名称的注册信息
 					if (!getRegistry().containsBeanDefinition(beanName)) {
 						// If we haven't already registered it...
+						// 没有注册时执行注册
 						registerBeanDefinition(beanName, map, prefix + beanName, resourceDescription);
 						++beanCount;
 					}
 				}
+				// 没有找到dot时不执行任何操作
 				else {
 					// Ignore it: It wasn't a valid bean name and property,
 					// although it did start with the required prefix.
@@ -420,7 +435,9 @@ public class PropertiesBeanDefinitionReader extends AbstractBeanDefinitionReader
 	protected void registerBeanDefinition(String beanName, Map<?, ?> map, String prefix, String resourceDescription)
 			throws BeansException {
 
+		// 记录类名称
 		String className = null;
+		// 记录父类名称
 		String parent = null;
 		// 默认单例
 		String scope = BeanDefinition.SCOPE_SINGLETON;
