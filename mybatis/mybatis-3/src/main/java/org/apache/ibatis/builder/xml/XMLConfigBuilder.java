@@ -82,10 +82,19 @@ public class XMLConfigBuilder extends BaseBuilder {
     this(new XPathParser(inputStream, true, props, new XMLMapperEntityResolver()), environment, props);
   }
 
+  /**
+   * 实例化一个XML配置类
+   * @param parser xml解析类
+   * @param environment 环境信息，默认是null
+   * @param props 参数集合，默认是null
+   */
   private XMLConfigBuilder(XPathParser parser, String environment, Properties props) {
+    // 实例化一个配置类，初始的配置类里面只有类别名及语言设置
     super(new Configuration());
     ErrorContext.instance().resource("SQL Mapper Configuration");
+    //
     this.configuration.setVariables(props);
+    // 标记是否已经解析过了
     this.parsed = false;
     this.environment = environment;
     this.parser = parser;

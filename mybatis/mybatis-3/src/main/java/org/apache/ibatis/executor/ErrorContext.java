@@ -16,11 +16,40 @@
 package org.apache.ibatis.executor;
 
 /**
+ * resource：存储异常存在于哪个资源文件中。
+ * 如：### The error may exist in mapper/AuthorMapper.xml
+ *
+ * activity：存储异常是做什么操作时发生的。
+ * 如：### The error occurred while setting parameters
+ *
+ * object：存储哪个对象操作时发生异常。
+ * 如：### The error may involve defaultParameterMap
+ *
+ * message：存储异常的概览信息。
+ * 如：### Error querying database. Cause: java.sql.SQLSyntaxErrorException: Unknown column 'id2' in 'field list'
+ *
+ * sql：存储发生日常的 SQL 语句。
+ * 如：### SQL: select id2, name, sex, phone from author where name = ?
+ *
+ * cause：存储详细的 Java 异常日志。
+ * 如：### Cause: java.sql.SQLSyntaxErrorException: Unknown column 'id2' in 'field list' at
+ * org.apache.ibatis.exceptions.ExceptionFactory.wrapException(ExceptionFactory.java:30) at
+ * org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:150) at
+ * org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:141) at
+ * org.apache.ibatis.binding.MapperMethod.executeForMany(MapperMethod.java:139) at org.apache.ibatis.binding.MapperMethod.execute(MapperMethod.java:76)
+ *
+ * 使用 ThreadLocal 管理 ErrorContext
+ *
+ *
  * @author Clinton Begin
  */
 public class ErrorContext {
 
   private static final String LINE_SEPARATOR = System.lineSeparator();
+
+  /**
+   * 每个线程一个实例，各个线程之间不影响
+   */
   private static final ThreadLocal<ErrorContext> LOCAL = ThreadLocal.withInitial(ErrorContext::new);
 
   private ErrorContext stored;

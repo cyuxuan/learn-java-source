@@ -32,6 +32,9 @@ import org.apache.ibatis.transaction.TransactionFactory;
 import org.apache.ibatis.transaction.managed.ManagedTransactionFactory;
 
 /**
+ * 默认的SqlSessionFactory
+ *
+ *
  * @author Clinton Begin
  */
 public class DefaultSqlSessionFactory implements SqlSessionFactory {
@@ -44,6 +47,7 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
 
   @Override
   public SqlSession openSession() {
+    // 默认execType SIMPLE
     return openSessionFromDataSource(configuration.getDefaultExecutorType(), null, false);
   }
 
@@ -96,10 +100,15 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
   private SqlSession openSessionFromDataSource(ExecutorType execType, TransactionIsolationLevel level, boolean autoCommit) {
     Transaction tx = null;
     try {
+      // 获取环境信息
       final Environment environment = configuration.getEnvironment();
+      // 获取事务工厂
       final TransactionFactory transactionFactory = getTransactionFactoryFromEnvironment(environment);
+      // 创建事务对象
       tx = transactionFactory.newTransaction(environment.getDataSource(), level, autoCommit);
+      // 获取sql执行器,通过不同条件获取不同的执行器
       final Executor executor = configuration.newExecutor(tx, execType);
+      // 获取默认SqlSession
       return new DefaultSqlSession(configuration, executor, autoCommit);
     } catch (Exception e) {
       closeTransaction(tx); // may have fetched a connection so lets call close()
@@ -131,10 +140,18 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
     }
   }
 
+  /**
+   * 获取一个事务对象
+   *
+   * @param environment 环境信息
+   * @return 返回一个事务对象
+   */
   private TransactionFactory getTransactionFactoryFromEnvironment(Environment environment) {
+    // 环境信息为空且环境信息中不带事务则生成一个
     if (environment == null || environment.getTransactionFactory() == null) {
       return new ManagedTransactionFactory();
     }
+    // 如果环境信息中存在事务对应则按照环境信息中的事务对象
     return environment.getTransactionFactory();
   }
 

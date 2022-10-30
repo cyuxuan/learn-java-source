@@ -11,6 +11,7 @@
     <modules>
         <module>spring-test-field</module>
         <module>java-test-field</module>
+        <module>mybatis-test-field</module>
     </modules>
 
     <properties>
