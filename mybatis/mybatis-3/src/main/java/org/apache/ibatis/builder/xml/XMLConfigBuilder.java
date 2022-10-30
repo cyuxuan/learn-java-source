@@ -78,7 +78,15 @@ public class XMLConfigBuilder extends BaseBuilder {
     this(inputStream, environment, null);
   }
 
+  /**
+   * 通过输入流，获取配置信息
+   *
+   * @param inputStream 配置文件输入流
+   * @param environment 环境信息，默认是null
+   * @param props       键值对信息，默认是null，暂时没有确认用途
+   */
   public XMLConfigBuilder(InputStream inputStream, String environment, Properties props) {
+    // XPathParser 对象用于
     this(new XPathParser(inputStream, true, props, new XMLMapperEntityResolver()), environment, props);
   }
 
@@ -100,15 +108,27 @@ public class XMLConfigBuilder extends BaseBuilder {
     this.parser = parser;
   }
 
+  /**
+   * 执行数据解析
+   *
+   * @return 返回一个配置类对象
+   */
   public Configuration parse() {
+    // 标记是否已经解析过，全局只解析一次
     if (parsed) {
       throw new BuilderException("Each XMLConfigBuilder can only be used once.");
     }
     parsed = true;
+    // 执行解析，并赋予根节点
     parseConfiguration(parser.evalNode("/configuration"));
     return configuration;
   }
 
+  /**
+   * 执行配置解析
+   *
+   * @param root 根节点
+   */
   private void parseConfiguration(XNode root) {
     try {
       // issue #117 read properties first

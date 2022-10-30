@@ -40,13 +40,22 @@ public class MapperRegistry {
     this.config = config;
   }
 
+  /**
+   * 获取一个对应interface的Mapper类
+   * @param type 要获取的类型Class
+   * @param sqlSession
+   * @param <T> 指定的类型
+   * @return 返回获取到的Mapper对象
+   */
   @SuppressWarnings("unchecked")
   public <T> T getMapper(Class<T> type, SqlSession sqlSession) {
+    // 从已知的Mapper中取出当前对应的Mapper生成工厂
     final MapperProxyFactory<T> mapperProxyFactory = (MapperProxyFactory<T>) knownMappers.get(type);
     if (mapperProxyFactory == null) {
       throw new BindingException("Type " + type + " is not known to the MapperRegistry.");
     }
     try {
+      // 使用当前的Mapper生成工厂获取对应实例
       return mapperProxyFactory.newInstance(sqlSession);
     } catch (Exception e) {
       throw new BindingException("Error getting mapper instance. Cause: " + e, e);

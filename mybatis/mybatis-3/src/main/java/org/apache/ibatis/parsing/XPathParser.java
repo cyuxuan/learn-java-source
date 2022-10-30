@@ -41,15 +41,42 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 /**
+ * XPathParser 主要是封装了java的XPath,对表达式进行解析，并转化成为指定的数据类型
+ * document：要解析的xml文件被转化成的Document对象。
+ * validation：获取document时是否要开启校验，开启校验的话会根据xml配置文件中定义的dtd文件校验xml格式，默认不开启校验。
+ * entityResolver：实体解析器，用于从本地工程目录中引入dtd文件，而不是根据网络URL去加载校验文件。
+ * variables：mybatis-config.xml配置文件中，<Properties>节点引入或定义的属性。
+ * xpath：封装的XPath对象，用来解析表达式。
+ *
+ *
  * @author Clinton Begin
  * @author Kazuki Shimizu
  */
 public class XPathParser {
 
+  /**
+   * 要解析的xml文件被转化成的Document对象
+   */
   private final Document document;
+
+  /**
+   * 获取document时是否要开启校验，开启校验的话会根据xml配置文件中定义的dtd文件校验xml格式，默认不开启校验
+   */
   private boolean validation;
+
+  /**
+   * 实体解析器，用于从本地工程目录中引入dtd文件，而不是根据网络URL去加载校验文件
+   */
   private EntityResolver entityResolver;
+
+  /**
+   * mybatis-config.xml配置文件中，<Properties>节点引入或定义的属性
+   */
   private Properties variables;
+
+  /**
+   * 封装的XPath对象，用来解析表达式
+   */
   private XPath xpath;
 
   public XPathParser(String xml) {
@@ -122,8 +149,18 @@ public class XPathParser {
     this.document = createDocument(new InputSource(reader));
   }
 
+  /**
+   * 构造函数
+   *
+   * @param inputStream    配置文件输入流
+   * @param validation     获取document时是否要开启校验，开启校验的话会根据xml配置文件中定义的dtd文件校验xml格式，默认不开启校验
+   * @param variables      mybatis-config.xml配置文件中，<Properties>节点引入或定义的属性
+   * @param entityResolver 实体解析器，用于从本地工程目录中引入dtd文件，而不是根据网络URL去加载校验文件
+   */
   public XPathParser(InputStream inputStream, boolean validation, Properties variables, EntityResolver entityResolver) {
+    // 初始化一些公共参数
     commonConstructor(validation, variables, entityResolver);
+    // 解析出document对象，以DTD文件解析，使用的就是传入的entityResolver
     this.document = createDocument(new InputSource(inputStream));
   }
 
@@ -207,7 +244,7 @@ public class XPathParser {
     return xnodes;
   }
 
-  public XNode evalNode(String expression) {
+  public XNode  evalNode(String expression) {
     return evalNode(document, expression);
   }
 
@@ -227,7 +264,14 @@ public class XPathParser {
     }
   }
 
+  /**
+   * 创建一个document对象，这里面就使用了本地的 DTD 文件进行数据解析
+   *
+   * @param inputSource 输入的配置信息文件流
+   * @return 返回一个document对象
+   */
   private Document createDocument(InputSource inputSource) {
+    // 重要：后续操作必须在公共参数初始化后使用
     // important: this must only be called AFTER common constructor
     try {
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -264,6 +308,13 @@ public class XPathParser {
     }
   }
 
+  /**
+   * 公共参数的初始化
+   *
+   * @param validation     是否根据dtd校验数据
+   * @param variables      mapper文件中属性标签的值
+   * @param entityResolver 实体解析器，用于从本地加载DTD文件
+   */
   private void commonConstructor(boolean validation, Properties variables, EntityResolver entityResolver) {
     this.validation = validation;
     this.entityResolver = entityResolver;

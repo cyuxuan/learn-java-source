@@ -45,6 +45,11 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
     this.configuration = configuration;
   }
 
+  /**
+   * 按照默认方式打开SqlSession
+   *
+   * @return SqlSession对象
+   */
   @Override
   public SqlSession openSession() {
     // 默认execType SIMPLE
@@ -102,7 +107,7 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
     try {
       // 获取环境信息
       final Environment environment = configuration.getEnvironment();
-      // 获取事务工厂
+      // 获取事务工厂，如果配置文件中有事务则使用配置中的，否则创建一个新的(默认的)
       final TransactionFactory transactionFactory = getTransactionFactoryFromEnvironment(environment);
       // 创建事务对象
       tx = transactionFactory.newTransaction(environment.getDataSource(), level, autoCommit);
