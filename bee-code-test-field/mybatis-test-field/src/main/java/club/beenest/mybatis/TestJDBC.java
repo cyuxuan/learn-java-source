@@ -34,7 +34,7 @@ public class TestJDBC {
         // 5. 获取结果集
         ResultSet resultSet = preparedStatement.executeQuery();
         // 创建数据库操作对象
-//        Statement statement = connection.createStatement();
+        Statement statement = connection.createStatement();
 //        ResultSet resultSet = statement.executeQuery(sql);
         while (resultSet.next()) {
             System.out.println(resultSet.getInt("id"));

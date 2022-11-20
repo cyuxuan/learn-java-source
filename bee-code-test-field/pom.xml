@@ -12,6 +12,7 @@
         <module>spring-test-field</module>
         <module>java-test-field</module>
         <module>mybatis-test-field</module>
+        <module>bee-algorithm</module>
     </modules>
 
     <properties>

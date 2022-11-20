@@ -26,6 +26,8 @@ public class TestMybatis {
         try (SqlSession session = sqlSessionFactory.openSession()) {
             TestMapper mapper = session.getMapper(TestMapper.class);
             String name = mapper.selectId(1);
+            TestMapper mapper2 = session.getMapper(TestMapper.class);
+            name = mapper2.selectId(1);
             System.out.println(name);
         }
     }
