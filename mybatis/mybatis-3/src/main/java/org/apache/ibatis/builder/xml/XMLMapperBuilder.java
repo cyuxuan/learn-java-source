@@ -91,6 +91,8 @@ public class XMLMapperBuilder extends BaseBuilder {
   }
 
   public void parse() {
+    // 判断当前资源是否已经加载过了
+    // 这里的resource就是mapper中的resource属性指向的值
     if (!configuration.isResourceLoaded(resource)) {
       configurationElement(parser.evalNode("/mapper"));
       configuration.addLoadedResource(resource);
@@ -108,12 +110,17 @@ public class XMLMapperBuilder extends BaseBuilder {
 
   private void configurationElement(XNode context) {
     try {
+      // 获取mapper文件中的namespace字段值
       String namespace = context.getStringAttribute("namespace");
+      // 为空则异常
       if (namespace == null || namespace.isEmpty()) {
         throw new BuilderException("Mapper's namespace cannot be empty");
       }
+      // 设置当前命名空间
       builderAssistant.setCurrentNamespace(namespace);
+      // 解决当前缓存关系
       cacheRefElement(context.evalNode("cache-ref"));
+      //
       cacheElement(context.evalNode("cache"));
       parameterMapElement(context.evalNodes("/mapper/parameterMap"));
       resultMapElements(context.evalNodes("/mapper/resultMap"));
@@ -187,9 +194,15 @@ public class XMLMapperBuilder extends BaseBuilder {
     }
   }
 
+  /**
+   *
+   * @param context
+   */
   private void cacheRefElement(XNode context) {
     if (context != null) {
+      // 绑定缓存关系
       configuration.addCacheRef(builderAssistant.getCurrentNamespace(), context.getStringAttribute("namespace"));
+      // 获取缓存关系解决对象
       CacheRefResolver cacheRefResolver = new CacheRefResolver(builderAssistant, context.getStringAttribute("namespace"));
       try {
         cacheRefResolver.resolveCacheRef();

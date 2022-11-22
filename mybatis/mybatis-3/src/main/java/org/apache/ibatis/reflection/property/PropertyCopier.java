@@ -20,6 +20,8 @@ import java.lang.reflect.Field;
 import org.apache.ibatis.reflection.Reflector;
 
 /**
+ * 属性赋值
+ *
  * @author Clinton Begin
  */
 public final class PropertyCopier {
@@ -28,6 +30,15 @@ public final class PropertyCopier {
     // Prevent Instantiation of Static Class
   }
 
+  /**
+   * 通过反射赋值属性值
+   *
+   * @param type            两个类同属的类，这个类只要有复制的目标和源的属性 集合即可
+   *                        获取该类及其父类的属性字段，然后复制源类中的对应的属性值到目标类中
+   *                        注意：这里源类的父类的属性值是获取不到的，所以交集只能的源类和目标类的当前类中的属性
+   * @param sourceBean      源数据
+   * @param destinationBean 目的对象
+   */
   public static void copyBeanProperties(Class<?> type, Object sourceBean, Object destinationBean) {
     Class<?> parent = type;
     while (parent != null) {

@@ -18,11 +18,25 @@ package org.apache.ibatis.reflection.property;
 import java.util.Iterator;
 
 /**
+ * 属性标记器
+ * 传入一个形如student[sId].name的字符串后该标记其会将其拆分开，放入到各个属性中
+ * 例：
+ * 拆分后的属性
+ * // student
+ * private String name;
+ * // student[sId]
+ * private final String indexedName;
+ * // sId
+ * private String index;
+ * // name
+ * private final String children;
+ *
  * @author Clinton Begin
  */
 public class PropertyTokenizer implements Iterator<PropertyTokenizer> {
   private String name;
   private final String indexedName;
+  // 属性标记器的下标被初始化过则当前属性是存储在一个集合中
   private String index;
   private final String children;
 

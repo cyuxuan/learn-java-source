@@ -18,10 +18,26 @@ package org.apache.ibatis.reflection.invoker;
 import java.lang.reflect.InvocationTargetException;
 
 /**
+ * 执行器子包，定义基于反射实现对象方法的调用和对象属性的读写能力
+ *
  * @author Clinton Begin
  */
 public interface Invoker {
+  /**
+   * 执行方法，该方法负责完成对象方法的调用及对象属性的读写
+   *
+   * @param target 目标对象
+   * @param args   目标参数
+   * @return 执行结果
+   * @throws IllegalAccessException    读取权限异常
+   * @throws InvocationTargetException 执行异常
+   */
   Object invoke(Object target, Object[] args) throws IllegalAccessException, InvocationTargetException;
 
+  /**
+   * 获取目标类型
+   *
+   * @return 返回目标类型
+   */
   Class<?> getType();
 }

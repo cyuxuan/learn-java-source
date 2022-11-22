@@ -57,7 +57,9 @@ public class TypeParameterResolver {
    *         they will be resolved to the actual runtime {@link Type}s.
    */
   public static Type resolveReturnType(Method method, Type srcType) {
+    // 当前类型的返回类型
     Type returnType = method.getGenericReturnType();
+    // 当前类型的定义类
     Class<?> declaringClass = method.getDeclaringClass();
     return resolveType(returnType, srcType, declaringClass);
   }
@@ -83,12 +85,23 @@ public class TypeParameterResolver {
     return result;
   }
 
+  /**
+   * 获取返回结果类型
+   *
+   * @param type           对应方法的返回类型
+   * @param srcType        来源类
+   * @param declaringClass 对应方法的定义类
+   * @return 返回类型
+   */
   private static Type resolveType(Type type, Type srcType, Class<?> declaringClass) {
     if (type instanceof TypeVariable) {
+      // E e,这里的E类型
       return resolveTypeVar((TypeVariable<?>) type, srcType, declaringClass);
     } else if (type instanceof ParameterizedType) {
+      // List<E> 最外层<>对应的类型
       return resolveParameterizedType((ParameterizedType) type, srcType, declaringClass);
     } else if (type instanceof GenericArrayType) {
+      // E[] 这里的E类型
       return resolveGenericArrayType((GenericArrayType) type, srcType, declaringClass);
     } else {
       return type;
@@ -152,6 +165,14 @@ public class TypeParameterResolver {
     return result;
   }
 
+  /**
+   * 返回对应函数的结果类型
+   *
+   * @param typeVar        对应方法的返回类型 E e
+   * @param srcType        mapper中的接口类型
+   * @param declaringClass 对应方法的定义类
+   * @return 返回结果类型
+   */
   private static Type resolveTypeVar(TypeVariable<?> typeVar, Type srcType, Class<?> declaringClass) {
     Type result;
     Class<?> clazz;

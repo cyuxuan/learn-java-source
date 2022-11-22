@@ -31,7 +31,10 @@ import org.apache.ibatis.reflection.property.PropertyTokenizer;
  */
 public class BeanWrapper extends BaseWrapper {
 
+  // 被包装的对象
   private final Object object;
+
+  // 被包装对象所属类的元类
   private final MetaClass metaClass;
 
   public BeanWrapper(MetaObject metaObject, Object object) {
@@ -40,9 +43,16 @@ public class BeanWrapper extends BaseWrapper {
     this.metaClass = MetaClass.forClass(object.getClass(), metaObject.getReflectorFactory());
   }
 
+  /**
+   * 获取被包装对象某个属性的值
+   * @param prop 属性标记器
+   * @return 对应的值
+   */
   @Override
   public Object get(PropertyTokenizer prop) {
+    // 属性标记器的下标被初始化过则当前属性是存储在一个集合中
     if (prop.getIndex() != null) {
+      // 则获取集合中的数据
       Object collection = resolveCollection(prop, object);
       return getCollectionValue(prop, collection);
     } else {

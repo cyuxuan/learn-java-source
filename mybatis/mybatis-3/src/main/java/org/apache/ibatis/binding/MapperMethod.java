@@ -222,8 +222,11 @@ public class MapperMethod {
     private final SqlCommandType type;
 
     public SqlCommand(Configuration configuration, Class<?> mapperInterface, Method method) {
+      // 获取方法名
       final String methodName = method.getName();
+      // 被拦截的到的方法的定义类
       final Class<?> declaringClass = method.getDeclaringClass();
+      // 获取对应的 MappedStatement 对象
       MappedStatement ms = resolveMappedStatement(mapperInterface, methodName, declaringClass,
           configuration);
       if (ms == null) {
@@ -253,13 +256,22 @@ public class MapperMethod {
 
     private MappedStatement resolveMappedStatement(Class<?> mapperInterface, String methodName,
         Class<?> declaringClass, Configuration configuration) {
+      // 此处可以看出 mybatis 按照 接口名称+方法名称 的方式来命名 SQL描述
       String statementId = mapperInterface.getName() + "." + methodName;
       if (configuration.hasStatement(statementId)) {
+        // 存在直接返回
         return configuration.getMappedStatement(statementId);
       } else if (mapperInterface.equals(declaringClass)) {
+        // 如果相等了，但是没有在 配置类 中找到，说明没有，返回null
         return null;
       }
+      // 获取当前对象直接实现或者直接继承的接口
       for (Class<?> superInterface : mapperInterface.getInterfaces()) {
+        // class1.isAssignableFrom(class2) 判定此 class1 对象所表示的类或接口与指定的
+        // class2 参数所表示的类或接口是否相同，class1 是否是 class2 的超类或超接口。如果是则返回 true；否则返回 false。
+        // 如果该 Class 表示一个基本类型，且指定的 Class 参数正是该 Class 对象，则该方法返回 true；否则返回 false
+        // 判断 declaringClass 是否是 superInterface的超类或者自身
+        // 这一步说白了就是在找declaringClass是否是mapperInterface的超类，如果是则找到具体的那个类
         if (declaringClass.isAssignableFrom(superInterface)) {
           MappedStatement ms = resolveMappedStatement(superInterface, methodName,
               declaringClass, configuration);
@@ -286,6 +298,7 @@ public class MapperMethod {
     private final ParamNameResolver paramNameResolver;
 
     public MethodSignature(Configuration configuration, Class<?> mapperInterface, Method method) {
+      // 被拦截到的方法，以及对应mapper中的接口类型
       Type resolvedReturnType = TypeParameterResolver.resolveReturnType(method, mapperInterface);
       if (resolvedReturnType instanceof Class<?>) {
         this.returnType = (Class<?>) resolvedReturnType;

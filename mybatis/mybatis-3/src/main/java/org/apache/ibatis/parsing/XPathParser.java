@@ -302,6 +302,7 @@ public class XPathParser {
           // NOP
         }
       });
+      // 解析生成一个DOM对象，后续继续解析对应的节点
       return builder.parse(inputSource);
     } catch (Exception e) {
       throw new BuilderException("Error creating document instance.  Cause: " + e, e);

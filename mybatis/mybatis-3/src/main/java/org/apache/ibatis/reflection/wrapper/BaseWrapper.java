@@ -23,11 +23,14 @@ import org.apache.ibatis.reflection.ReflectionException;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
 
 /**
+ * 基本类型包装器-装饰器模式
+ *
  * @author Clinton Begin
  */
 public abstract class BaseWrapper implements ObjectWrapper {
 
   protected static final Object[] NO_ARGUMENTS = new Object[0];
+  // 被包装对象的元对象，存储一些被包装对象的对象信息
   protected final MetaObject metaObject;
 
   protected BaseWrapper(MetaObject metaObject) {
@@ -35,9 +38,11 @@ public abstract class BaseWrapper implements ObjectWrapper {
   }
 
   protected Object resolveCollection(PropertyTokenizer prop, Object object) {
+    // 如果属性标记器的名称为空则直接返回当前对象
     if ("".equals(prop.getName())) {
       return object;
     } else {
+      // 否则从 元对象 中获取对应值
       return metaObject.getValue(prop.getName());
     }
   }

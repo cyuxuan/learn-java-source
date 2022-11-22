@@ -56,6 +56,7 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
   static {
     Method privateLookupIn;
     try {
+      // 如果是jdk9,那么可以查找到对应 method
       privateLookupIn = MethodHandles.class.getMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class);
     } catch (NoSuchMethodException e) {
       privateLookupIn = null;
@@ -63,6 +64,7 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
     privateLookupInMethod = privateLookupIn;
 
     Constructor<Lookup> lookup = null;
+    // 如果没有找到对应的jdk9方法，则说明是jdk8,获取jdk8的 lookup 对象的构造方法
     if (privateLookupInMethod == null) {
       // JDK 1.8
       try {
@@ -76,15 +78,39 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
         lookup = null;
       }
     }
+    // 获取到的构造方法
     lookupConstructor = lookup;
   }
 
+  /**
+   * 关于 Object.class.equals(method.getDeclaringClass()) 的必要性
+   * MapperProxy就是一个InvocationHandler（它的作用是jdk创建动态代理时用的），
+   * 也就是我们会根据当前的接口创建一个这个接口的动态代理对象，使用动态代理对象再利用反射调用实际对象的目标方法。
+   * 然而动态代理对象里面的方法都是Interface规定的。但是动态代理对象也能调用比如toString(),hashCode()等这些方法呀，
+   * 这些方法是所有类从Object继承过来的。
+   * 所以这个判断的根本作用就是，如果利用动态代理对象调用的是toString，hashCode,getClass等这些从Object类继承过来的方法，
+   * 就直接反射调用。如果调用的是接口规定的方法。我们就用MapperMethod来执行。
+   *
+   * 综上所述 结论：
+   * 1）、method.getDeclaringClass用来判断当前这个方法是哪个类的方法。
+   * 2）、接口创建出的代理对象不仅有实现接口的方法，也有从Object继承过来的方法
+   * 3）、实现的接口的方法method.getDeclaringClass是接口类型，比如club.beenest.MapperDao
+   *         从Object类继承过来的方法类型是java.lang.Object类型
+   * 4）、如果是Object类继承来的方法，直接反射调用
+   *         如果是实现的接口规定的方法，利用Mybatis的MapperMethod调用
+   *
+   * @param method
+   * @return 返回执行结果
+   * @throws Throwable 异常捕获
+   */
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     try {
+      // 此处用来判断是否是Object对象中的方法
       if (Object.class.equals(method.getDeclaringClass())) {
         return method.invoke(this, args);
       } else {
+        // 非Object中继承过来的方法再使用 MapperProxy 执行
         return cachedInvoker(method).invoke(proxy, method, args, sqlSession);
       }
     } catch (Throwable t) {
@@ -95,11 +121,15 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
   private MapperMethodInvoker cachedInvoker(Method method) throws Throwable {
     try {
       return MapUtil.computeIfAbsent(methodCache, method, m -> {
+        // 判断当前 mehtod 的访问控制是否为default
         if (m.isDefault()) {
+          // 非接口，非抽象类，非静态方法
           try {
             if (privateLookupInMethod == null) {
+              // java8
               return new DefaultMethodInvoker(getMethodHandleJava8(method));
             } else {
+              // java9
               return new DefaultMethodInvoker(getMethodHandleJava9(method));
             }
           } catch (IllegalAccessException | InstantiationException | InvocationTargetException

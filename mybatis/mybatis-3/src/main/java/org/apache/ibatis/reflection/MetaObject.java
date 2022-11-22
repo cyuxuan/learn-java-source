@@ -28,6 +28,8 @@ import org.apache.ibatis.reflection.wrapper.ObjectWrapper;
 import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
 
 /**
+ * 涵盖了对应Object类中的全部信息，并经过变化和拆解得到了一些更为细节的信息
+ *
  * @author Clinton Begin
  */
 public class MetaObject {
@@ -110,7 +112,9 @@ public class MetaObject {
   }
 
   public Object getValue(String name) {
+    // 实例化一个属性标记器，只赋值名称
     PropertyTokenizer prop = new PropertyTokenizer(name);
+    // 判断是否有子类
     if (prop.hasNext()) {
       MetaObject metaValue = metaObjectForProperty(prop.getIndexedName());
       if (metaValue == SystemMetaObject.NULL_META_OBJECT) {

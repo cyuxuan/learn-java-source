@@ -14,6 +14,9 @@
  *    limitations under the License.
  */
 /**
+ * 该包下面都是-对象包装器
+ * 该包中的类使用装饰器模式对各种类型的对象(包括基本类型，Bean对象、集合对象、Map对象)进行进一步的封装，为其增加一些功能，是它们更易于使用
+ * <p>
  * Object wrappers.
  */
 package org.apache.ibatis.reflection.wrapper;

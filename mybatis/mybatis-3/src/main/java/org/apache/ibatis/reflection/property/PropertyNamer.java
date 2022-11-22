@@ -20,6 +20,8 @@ import java.util.Locale;
 import org.apache.ibatis.reflection.ReflectionException;
 
 /**
+ * 属性名称相关的操作
+ *
  * @author Clinton Begin
  */
 public final class PropertyNamer {
@@ -28,7 +30,14 @@ public final class PropertyNamer {
     // Prevent Instantiation of Static Class
   }
 
+  /**
+   * 获取方法名称对应的属性名称
+   *
+   * @param name 属性名称
+   * @return 对应的方法名称
+   */
   public static String methodToProperty(String name) {
+    // 判断是is开头则
     if (name.startsWith("is")) {
       name = name.substring(2);
     } else if (name.startsWith("get") || name.startsWith("set")) {
@@ -37,13 +46,23 @@ public final class PropertyNamer {
       throw new ReflectionException("Error parsing property name '" + name + "'.  Didn't start with 'is', 'get' or 'set'.");
     }
 
+    // 判断：当前属性名称是不是一个字符，如果多余一个字符则判断当前不是大写字母开头
+    // 判断第二个字符是否是大写，如果是则不转换，按照原大写名称返回
+    // AAsdf则返回原值，Aasdf才将A转为小写
     if (name.length() == 1 || (name.length() > 1 && !Character.isUpperCase(name.charAt(1)))) {
+      // 对应情况则将首字母转为小写
       name = name.substring(0, 1).toLowerCase(Locale.ENGLISH) + name.substring(1);
     }
 
     return name;
   }
 
+  /**
+   * 判断当前名称是否是属性，属性均以get set is开头
+   *
+   * @param name 方法名称
+   * @return 判断结果
+   */
   public static boolean isProperty(String name) {
     return isGetter(name) || isSetter(name);
   }

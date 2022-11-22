@@ -243,9 +243,11 @@ public class ResolverUtil<T> {
    * @return the resolver util
    */
   public ResolverUtil<T> find(Test test, String packageName) {
+    // 如果用的. 将. 替换为/
     String path = getPackagePath(packageName);
 
     try {
+      // mybatis的虚拟文件系统，加载包下的所有文件
       List<String> children = VFS.getInstance().list(path);
       for (String child : children) {
         if (child.endsWith(".class")) {
@@ -281,12 +283,15 @@ public class ResolverUtil<T> {
   @SuppressWarnings("unchecked")
   protected void addIfMatching(Test test, String fqn) {
     try {
+      // 将点替换为/
       String externalName = fqn.substring(0, fqn.indexOf('.')).replace('/', '.');
+      // 获取类加载器
       ClassLoader loader = getClassLoader();
       if (log.isDebugEnabled()) {
         log.debug("Checking to see if class " + externalName + " matches criteria [" + test + "]");
       }
-
+      // 加载对应的class
+      //
       Class<?> type = loader.loadClass(externalName);
       if (test.matches(type)) {
         matches.add((Class<T>) type);
