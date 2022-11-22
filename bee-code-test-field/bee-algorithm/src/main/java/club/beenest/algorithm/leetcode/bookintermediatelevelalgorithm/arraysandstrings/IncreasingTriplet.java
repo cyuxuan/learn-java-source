@@ -1,4 +1,4 @@
-package club.beenest.algorithm.leetcode;
+package club.beenest.algorithm.leetcode.bookintermediatelevelalgorithm.arraysandstrings;
 
 /**
  * 递增的三元子序列

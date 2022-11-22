@@ -1,14 +1,14 @@
-package club.beenest.algorithm.leetcode;
+package club.beenest.algorithm.leetcode.bookintermediatelevelalgorithm.list;
 
 /**
- * 两数相加
- * https://leetcode.cn/leetbook/read/top-interview-questions-medium/xvw73v/
+ * 奇偶链表
+ * https://leetcode.cn/leetbook/read/top-interview-questions-medium/xvdwtj/
  *
  * @author 陈玉轩
  */
-public class AddTwoNumbers {
+public class OddEvenList {
     public static void main(String[] args) {
-        ListNode list = doit(listNode1, listNode2);
+        ListNode list = doit(listNode1);
         ListNode node = list;
         while (true) {
             System.out.print(node.val + " ");
@@ -21,61 +21,74 @@ public class AddTwoNumbers {
     }
 
     /**
-     * 直接执行处理
-     *
-     * @param l1
-     * @param l2
+     * 
      * @return
      */
-    private static ListNode doit(ListNode l1, ListNode l2) {
-        // 记录进位值
-        int m = 0;
-        ListNode x = l1;
-        ListNode y = l2;
-        ListNode z = new ListNode();
-        ListNode tempNode = z;
-        while (x != null || y != null || m != 0) {
-            // 循环获取值并进行加法运算
-            // 取值，如果为null则取0
-            int tempx = (x != null ? x.val : 0);
-            int tempy = (y != null ? y.val : 0);
+    public static ListNode doit(ListNode node) {
+        // 标记基数与偶数
+        boolean even = false;
+        ListNode evenNode = new ListNode();
+        ListNode oddNode = new ListNode();
 
-            int tempz = tempx + tempy + m;
-            // 进位区的值消耗了，重新置零
-            m = 0;
+        ListNode tempEven = evenNode;
+        ListNode tempOdd = oddNode;
 
-            if (tempz >= 10) {
-                m = tempz / 10;
-                tempz = tempz % 10;
+        while (true) {
+            ListNode tempNode = new ListNode();
+            tempNode.val = node.val;
+            if(even) {
+                // 当前是偶数
+                tempEven.next = tempNode;
+                tempEven = tempEven.next;
+                // 下一个是基数
+                even = false;
+            } else {
+                // 当前是奇数
+                tempOdd.next= tempNode;
+                tempOdd = tempOdd.next;
+                // 下一个是偶数
+                even = true;
             }
 
-            // 取z的下一个节点
-            tempNode.next = new ListNode();
-            tempNode.next.val = tempz;
-            // 指向下一个节点
-            tempNode = tempNode.next;
-
-            // 向后取节点
-            if (x == null || x.next == null) {
-                x = null;
+            if(node.next == null) {
+                break;
             } else {
-                x = x.next;
-            }
-
-            if (y == null || y.next == null) {
-                y = null;
-            } else {
-                y = y.next;
+                node = node.next;
             }
         }
-        // 去除头接点
-        z = z.next;
-
-        return z;
+        // 去除头节点
+        evenNode = evenNode.next;
+        // 组合一下
+        tempOdd.next = evenNode;
+        // 去除头节点
+        oddNode = oddNode.next;
+        return oddNode;
     }
 
 
-    private static int[] data1 = {9, 9, 9, 9, 9, 9, 9};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    private static int[] data1 = {2,1,3,5,6,4,7};
     private static int[] data2 = {9, 9, 9, 9};
 //    private static int[] data1 = {2, 4, 3};
 //    private static int[] data2 = {5, 6, 4};
