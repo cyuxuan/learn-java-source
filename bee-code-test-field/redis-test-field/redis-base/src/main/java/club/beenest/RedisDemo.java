@@ -32,7 +32,7 @@ public class RedisDemo {
         // 获取连接池
         JedisPool jedisPool = new JedisPool(jedisPoolConfig,
                 "localhost.beenest.club",
-                6379, 1000, "123456");
+                6379, 1000, "");
         // 使用连接池获取连接
         Jedis jedis = jedisPool.getResource();
         String res = jedis.get("test11");
@@ -43,7 +43,7 @@ public class RedisDemo {
         // 建立连接
         Jedis jedis = new Jedis("localhost.beenest.club", 6379);
         // 设置密码
-        jedis.auth("123456");
+        jedis.auth("");
         // 选择对应库
         jedis.select(0);
         // 获取对应数据
