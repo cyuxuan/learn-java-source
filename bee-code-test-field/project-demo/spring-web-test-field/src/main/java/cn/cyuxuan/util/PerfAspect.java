@@ -127,6 +127,10 @@ public class PerfAspect {
         Map<String, ExecuteInfo> map = (Map<String, ExecuteInfo>) threadLocal.get().get("map");
         ExecuteInfo executeInfo = map.get(uuid);
         executeInfo.executeTime = stopWatch.getLastTaskTimeMillis();
+        this.getThreadAllocatedBytes((allocatedBytes, gcNum) -> {
+            executeInfo.afterByteNum = allocatedBytes;
+            executeInfo.afterGcNum = gcNum;
+        });
         // 如果栈中为空则，方法执行完毕，写出对应的方法执行集合
         if (stack.size() == 0) {
             for (String infoId : list) {
@@ -135,11 +139,29 @@ public class PerfAspect {
                 for (int i = 0; i < exeInfo.level; i++) {
                     prefix.append("-- | ");
                 }
+                // 获取内存信息
+                String memInfo = getMemInfo(exeInfo);
                 prefix.append("--> ");
-                String out = prefix + exeInfo.methodName + USETIME + exeInfo.executeTime;
+                String out = prefix + exeInfo.methodName + USETIME + exeInfo.executeTime
+                        + "ms " + memInfo;
                 System.out.println(out);
             }
         }
+    }
+
+    /**
+     * 获取内存信息
+     *
+     * @param executeInfo 函数执行信息
+     */
+    private static String getMemInfo(ExecuteInfo executeInfo) {
+        long bytes = executeInfo.afterByteNum - executeInfo.beforeByteNum;
+        long kbs = bytes / 1024;
+        long ms = kbs / 1024;
+        // 判断当前是否执行过gc
+        boolean gcFlag = executeInfo.afterGcNum == executeInfo.beforegGcNum;
+        String gcstr = gcFlag ? "" : "gc";
+        return "memory(thread)(" + gcstr + "):[" + ms + "m]";
     }
 
     /**

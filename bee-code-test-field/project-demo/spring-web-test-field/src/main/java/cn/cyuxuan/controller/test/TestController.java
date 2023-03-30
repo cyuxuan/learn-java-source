@@ -20,6 +20,7 @@ public class TestController {
             e.printStackTrace();
         }
         testService.testMore();
+        char[] chars = new char[102400000];
         return testService.testService();
     }
 }
