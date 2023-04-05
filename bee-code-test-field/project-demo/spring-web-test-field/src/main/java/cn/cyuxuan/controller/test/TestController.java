@@ -19,7 +19,7 @@ public class TestController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        testService.testMore();
+        testService.testMore("123");
         char[] chars = new char[102400000];
         return testService.testService();
     }

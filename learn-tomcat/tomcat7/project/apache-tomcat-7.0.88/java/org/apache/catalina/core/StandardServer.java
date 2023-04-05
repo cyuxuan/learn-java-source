@@ -794,8 +794,9 @@ public final class StandardServer extends LifecycleMBeanBase implements Server {
         super.initInternal();
 
         // Register global String cache
-        // Note although the cache is global, if there are multiple Servers
-        // present in the JVM (may happen when embedding) then the same cache
+        // 注册全局 String 缓存
+        // Note although(虽然) the cache is global, if there are multiple Servers
+        // present(存在) in the JVM (may happen when embedding(嵌入)) then the same cache
         // will be registered under multiple names
         onameStringCache = register(new StringCache(), "type=StringCache");
 

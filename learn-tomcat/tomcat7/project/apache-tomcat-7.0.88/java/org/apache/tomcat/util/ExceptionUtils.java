@@ -61,9 +61,11 @@ public class ExceptionUtils {
 
     /**
      * NO-OP method provided to enable simple pre-loading of this class. Since
-     * the class is used extensively in error handling, it is prudent to
-     * pre-load it to avoid any failure to load this class masking the true
+     * the class is used extensively(广泛) in error handling, it is prudent(谨慎的) to
+     * pre-load it to avoid(避免) any failure(失败) to load this class masking the true
      * problem during error handling.
+     * 一个没有任何操作的函数
+     *
      */
     public static void preload() {
         // NO-OP

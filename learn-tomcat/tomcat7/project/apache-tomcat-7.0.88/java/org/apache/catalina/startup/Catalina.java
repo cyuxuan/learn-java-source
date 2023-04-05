@@ -149,7 +149,9 @@ public class Catalina {
     // ----------------------------------------------------------- Constructors
 
     public Catalina() {
+        // 设置
         setSecurityProtection();
+        // 很多地方在使用这个类，执行一次预加载，防止后续使用的时候加载不到
         ExceptionUtils.preload();
     }
 
@@ -553,13 +555,18 @@ public class Catalina {
 
         long t1 = System.nanoTime();
 
+        // 重新初始化
+        // 重新加载 catalina.home
+        // 重新加载 catalina.base
+        // 加载一次 java.io.tmpdir
         initDirs();
 
         // Before digester - it may be needed
-
+        // 设置命名空间
         initNaming();
 
         // Create and execute our Digester
+        // 根据 xml 解析对应的对象
         Digester digester = createStartDigester();
 
         InputSource inputSource = null;
@@ -644,13 +651,16 @@ public class Catalina {
             }
         }
 
+        // 将 digester 生成的 server 对象赋值给 catalina
         getServer().setCatalina(this);
 
         // Stream redirection
+        // 初始化输入输出流
         initStreams();
 
         // Start the new server
         try {
+            // 初始化 server
             getServer().init();
         } catch (LifecycleException e) {
             if (Boolean.getBoolean("org.apache.catalina.startup.EXIT_ON_INIT_FAILURE")) {
@@ -688,7 +698,7 @@ public class Catalina {
      * Start a new server instance.
      */
     public void start() {
-
+        // 获取一个server
         if (getServer() == null) {
             load();
         }
@@ -808,10 +818,14 @@ public class Catalina {
 
     }
 
-
+    /**
+     *
+     */
     protected void initDirs() {
-
+        // 取 catalina.home
         String catalinaHome = System.getProperty(Globals.CATALINA_HOME_PROP);
+        // 如果是空的则重新获取
+        // 优先级 catalina.home > com.sun.enterprise.home > catalina.base > user.dir
         if (catalinaHome == null) {
             // Backwards compatibility patch for J2EE RI 1.3
             String j2eeHome = System.getProperty("com.sun.enterprise.home");
@@ -825,34 +839,46 @@ public class Catalina {
         if(catalinaHome==null) {
             catalinaHome=System.getProperty("user.dir");
         }
+        // catalinaHome 非空则 执行加载
         if (catalinaHome != null) {
+            // 获取catalinaHome为文件对象
             File home = new File(catalinaHome);
+            // 判断是否为绝对路径
             if (!home.isAbsolute()) {
                 try {
+                    // 获取标准路径
                     catalinaHome = home.getCanonicalPath();
                 } catch (IOException e) {
+                    // 失败则获取绝对路径
                     catalinaHome = home.getAbsolutePath();
                 }
             }
+            // 设置catalina.home
             System.setProperty(Globals.CATALINA_HOME_PROP, catalinaHome);
         }
 
+        // catalina.base为OK那个则设置catalina.base为CatalinaHome
         if (System.getProperty(Globals.CATALINA_BASE_PROP) == null) {
             System.setProperty(Globals.CATALINA_BASE_PROP,
                                catalinaHome);
         } else {
+            // catalina.base不为空则获取该值
             String catalinaBase = System.getProperty(Globals.CATALINA_BASE_PROP);
             File base = new File(catalinaBase);
+            // 判断是否为绝对路径
             if (!base.isAbsolute()) {
                 try {
+                    // 获取标准路径
                     catalinaBase = base.getCanonicalPath();
                 } catch (IOException e) {
+                    // 获取绝对路径
                     catalinaBase = base.getAbsolutePath();
                 }
             }
+            // 重新设置catalina.base
             System.setProperty(Globals.CATALINA_BASE_PROP, catalinaBase);
         }
-
+        // 设置 java.io.tpmdir 在 catalina.sh 启动脚本中设置了
         String temp = System.getProperty("java.io.tmpdir");
         if (temp == null || (!(new File(temp)).exists())
                 || (!(new File(temp)).isDirectory())) {
@@ -871,6 +897,7 @@ public class Catalina {
 
     protected void initNaming() {
         // Setting additional variables
+        // 是否使用明明空间，默认为true
         if (!useNaming) {
             log.info( "Catalina naming disabled");
             System.setProperty("catalina.useNaming", "false");
@@ -903,8 +930,11 @@ public class Catalina {
      * Set the security package access/protection.
      */
     protected void setSecurityProtection(){
+        // 初始化安全配置
         SecurityConfig securityConfig = SecurityConfig.newInstance();
+        // 设置安全配置参数
         securityConfig.setPackageDefinition();
+        // 设置安全配置参数
         securityConfig.setPackageAccess();
     }
 

@@ -20,12 +20,12 @@ public class TestServiceImpl implements TestService {
         }
         String name = testDao.selectNameById(1);
         String sex = testDao.selectSexById(1);
-        this.testMore();
+        this.testMore("123");
         return "test" + " " + name + " " + sex;
     }
 
     @Override
-    public String testMore() {
+    public String testMore(String str) {
         String name = testDao.selectNameById(1);
         return doMore();
     }

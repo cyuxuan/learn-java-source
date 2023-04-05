@@ -75,9 +75,13 @@ public final class Bootstrap {
 
     // -------------------------------------------------------- Private Methods
 
-
+    /**
+     * 初始化类加载器
+     *
+     */
     private void initClassLoaders() {
         try {
+            // 创建一个类加载器
             commonLoader = createClassLoader("common", null);
             if( commonLoader == null ) {
                 // no config file, default to this loader - we might be in a 'single' env.
@@ -92,26 +96,41 @@ public final class Bootstrap {
         }
     }
 
-
+    /**
+     * 创建类加载器
+     *
+     * @param name   类加载器名称
+     * @param parent 父级累加载器
+     * @return 当前生成的类加载器
+     * @throws Exception 异常信息
+     */
     private ClassLoader createClassLoader(String name, ClassLoader parent)
         throws Exception {
-
+        // CatalinaProperties是catalina的全局静态属性集合
+        // 获取类加载器，类加载器都是以.loader结尾
         String value = CatalinaProperties.getProperty(name + ".loader");
+        // 如果没有取到对应的属性，则直接返回父加载器
         if ((value == null) || (value.equals("")))
             return parent;
 
+        // 将${xxxx}替换为实际值
         value = replace(value);
 
         List<Repository> repositories = new ArrayList<Repository>();
 
+        // 使用逗号分割字符串
         StringTokenizer tokenizer = new StringTokenizer(value, ",");
+
+        // 遍历分割出来的 字符串
         while (tokenizer.hasMoreElements()) {
+            // 目录去除空格后不存在则不处理
             String repository = tokenizer.nextToken().trim();
             if (repository.length() == 0) {
                 continue;
             }
 
             // Check for a JAR URL repository
+            // 检查是否是url如果不是会抛出异常，这里异常会被忽略则进入后续逻辑
             try {
                 @SuppressWarnings("unused")
                 URL url = new URL(repository);
@@ -123,6 +142,7 @@ public final class Bootstrap {
             }
 
             // Local repository
+            // 如果不是网络资源，则开始加载本地资源
             if (repository.endsWith("*.jar")) {
                 repository = repository.substring
                     (0, repository.length() - "*.jar".length());
@@ -196,8 +216,12 @@ public final class Bootstrap {
         // Set Catalina path
         // 设置catalina路径
         setCatalinaHome();
+
+        // catalina.base 为空则设置catalina.base
+        // 优先设置为catalina.home，user.dir保底
         setCatalinaBase();
 
+        // 初始化类加载器
         initClassLoaders();
 
         Thread.currentThread().setContextClassLoader(catalinaLoader);
@@ -224,6 +248,7 @@ public final class Bootstrap {
             startupInstance.getClass().getMethod(methodName, paramTypes);
         method.invoke(startupInstance, paramValues);
 
+        // catalina守护进程
         catalinaDaemon = startupInstance;
 
     }
@@ -398,6 +423,8 @@ public final class Bootstrap {
             Bootstrap bootstrap = new Bootstrap();
             try {
                 // 启动初始化
+                // 获取一个 Catalina 对象实例
+                // 该实例 被 注入了classloader对象
                 bootstrap.init();
             } catch (Throwable t) {
                 handleThrowable(t);
@@ -427,6 +454,8 @@ public final class Bootstrap {
                 daemon.stop();
             } else if (command.equals("start")) {
                 daemon.setAwait(true);
+                // 调用load函数，其中调用了Catalina的load函数
+                // 该函数会 load
                 daemon.load(args);
                 daemon.start();
             } else if (command.equals("stop")) {
@@ -465,6 +494,11 @@ public final class Bootstrap {
     /**
      * Set the <code>catalina.base</code> System property to the current
      * working directory if it has not been set.
+     * 逻辑
+     *  1. 如果 catalina.base 有值则退出不再设置
+     *  2. 如果 catalina.base 为空则执行赋值
+     *      3. 判断 catalina.home 是否为空，如果不为空则赋值给catalina.base 否则赋值catalina.base为user.dir
+     *
      */
     private void setCatalinaBase() {
 
@@ -483,17 +517,20 @@ public final class Bootstrap {
     /**
      * Set the <code>catalina.home</code> System property to the current
      * working directory if it has not been set.
+     * 设置 catalina.home 系统参数为当前的工作目录，如果没有设置过
+     *
      */
     private void setCatalinaHome() {
 
         // 系统参数中有catalina.home参数则直接退出当前操作
         if (System.getProperty(Globals.CATALINA_HOME_PROP) != null)
             return;
-        // 实例化 一个文件, user.dir（用户目录）下的bootstrap.jar文件
+        // 获取当前目录下的 user.dir（用户目录）下的bootstrap.jar文件
         File bootstrapJar =
             new File(System.getProperty("user.dir"), "bootstrap.jar");
         if (bootstrapJar.exists()) {
             try {
+                // getCanonicalPath 返回文件的绝对路径
                 System.setProperty
                     (Globals.CATALINA_HOME_PROP,
                      (new File(System.getProperty("user.dir"), ".."))

@@ -52,42 +52,76 @@ import org.apache.ibatis.util.MapUtil;
  * @author Clinton Begin
  */
 public class Reflector {
-  // 判断是否为record 关键字标记的 方法的执行器
+  /**
+   * 判断是否为record 关键字标记的 方法的执行器
+   */
   private static final MethodHandle isRecordMethodHandle = getIsRecordMethodHandle();
-  // 要被反射解析的类
+
+  /**
+   * 要被反射解析的类
+   */
   private final Class<?> type;
-  // 能够读的属性列表，即有get方法的属性列表
+
+  /**
+   * 能够读的属性列表，即有get方法的属性列表
+   */
   private final String[] readablePropertyNames;
-  // 能够写的属性列表，即有set方法的属性列表
+
+  /**
+   * 能够写的属性列表，即有set方法的属性列表
+   */
   private final String[] writablePropertyNames;
-  // set方法映射，键为属性名，值为对应的set方法
+
+  /**
+   * set方法映射，键为属性名，值为对应的set方法
+   */
   private final Map<String, Invoker> setMethods = new HashMap<>();
-  // get方法映射，键为属性名，值为对应的get方法
+
+  /**
+   * get方法映射，键为属性名，值为对应的get方法
+   */
   private final Map<String, Invoker> getMethods = new HashMap<>();
-  // set方法输入类型，键为属性名，值为对应的该属性的set方法的类型(实际为set方法的第一个参数的类型)
+
+  /**
+   * set方法输入类型，键为属性名，值为对应的该属性的set方法的类型(实际为set方法的第一个参数的类型)
+   */
   private final Map<String, Class<?>> setTypes = new HashMap<>();
-  // get方法输出类型，键为属性名，值为对应的该属性的get方法的类型(实际为get方法的返回值类型)
+
+  /**
+   * get方法输出类型，键为属性名，值为对应的该属性的get方法的类型(实际为get方法的返回值类型)
+   */
   private final Map<String, Class<?>> getTypes = new HashMap<>();
-  // 大小写无关的属性映射表，键为属性名全大写值，值为属性名
+
+  /**
+   * 大小写无关的属性映射表，键为属性名全大写值，值为属性名
+   */
   private Constructor<?> defaultConstructor;
 
+  /**
+   *
+   */
   private Map<String, String> caseInsensitivePropertyMap = new HashMap<>();
 
   /**
    * 解析指定的Class类型 并填充上述的集合信息
+   * 从type中解析出上述需要的所有的属性信息
    *
    * @param clazz 指定的要解析的class类型
    */
   public Reflector(Class<?> clazz) {
     // 初始化 type字段
     type = clazz;
-    // 设置默认的构造方法
+
+    // 设置默认的构造方法，字段 - defaultConstructor
     addDefaultConstructor(clazz);
+
     // 获取 class 类型中的方法
     Method[] classMethods = getClassMethods(clazz);
+
     // 判断当前类是否是 record 关键字修饰
     if (isRecord(type)) {
       // 如过是则加入record关键字修饰的方法
+      // addGetMethod 直接git所有的
       addRecordGetMethods(classMethods);
     } else {
       // 获取getter方法
@@ -97,6 +131,7 @@ public class Reflector {
       // 处理没有getter/setter方法的字段
       addFields(clazz);
     }
+
     // 初始化 可读属性名称集合
     readablePropertyNames = getMethods.keySet().toArray(new String[0]);
     // 初始化 可写属性名称集合
@@ -127,6 +162,9 @@ public class Reflector {
 
   /**
    * 设置默认的构造方法
+   * 1. 获取所有的构造器
+   * 2. 从构造器中获取无参构造器、
+   * 3. 赋值给 defaultConstructor 参数
    *
    * @param clazz 指定解析的类型
    */
@@ -140,13 +178,26 @@ public class Reflector {
       .findAny().ifPresent(constructor -> this.defaultConstructor = constructor);
   }
 
+  /**
+   * 将getter方法加入到可以冲突的getter方法集合中
+   *
+   * @param methods getter方法对象
+   */
   private void addGetMethods(Method[] methods) {
+    // 冲突集合
     Map<String, List<Method>> conflictingGetters = new HashMap<>();
+    // 首先过滤 入参为0个 且 名字符合Getter标准的 函数
+    // 然后将 获取到的getter函数存入 集合中
     Arrays.stream(methods).filter(m -> m.getParameterTypes().length == 0 && PropertyNamer.isGetter(m.getName()))
       .forEach(m -> addMethodConflict(conflictingGetters, PropertyNamer.methodToProperty(m.getName()), m));
+    // 开始解决getter的冲突
     resolveGetterConflicts(conflictingGetters);
   }
 
+  /**
+   * 解决 getter方法名字的冲突
+   * @param conflictingGetters 可以带有冲突的 getter 方法集合
+   */
   private void resolveGetterConflicts(Map<String, List<Method>> conflictingGetters) {
     for (Entry<String, List<Method>> entry : conflictingGetters.entrySet()) {
       Method winner = null;
@@ -187,7 +238,7 @@ public class Reflector {
    * @param isAmbiguous 是否是不确定的类型
    */
   private void addGetMethod(String name, Method method, boolean isAmbiguous) {
-    // 确认是模糊不清的吗
+    // 确认是模糊不清的吗？
     // 如果是则生成一个模糊不清的调用器
     // 不模糊则直接生成一个方法执行器
     MethodInvoker invoker = isAmbiguous
@@ -211,8 +262,19 @@ public class Reflector {
     resolveSetterConflicts(conflictingSetters);
   }
 
+  /**
+   * getter 方法的可以带有冲突的集合
+   * 一个 key对应一个方法集合，集合中存在多个同名的海曙对象
+   *
+   * @param conflictingMethods 可以带有冲突的方法集合
+   * @param name 从方法名称解析到的属性名称， getXxx中的xxx
+   * @param method 方法对象
+   */
   private void addMethodConflict(Map<String, List<Method>> conflictingMethods, String name, Method method) {
+    // 校验方法名称
+    // 名字必须是不能以$开头，不能是序列化名称，不能是class名称
     if (isValidPropertyName(name)) {
+      // 获取list对象，存在则取出来，不存在则新建一个返回出来
       List<Method> list = MapUtil.computeIfAbsent(conflictingMethods, name, k -> new ArrayList<>());
       list.add(method);
     }
@@ -329,6 +391,12 @@ public class Reflector {
     }
   }
 
+  /**
+   * 校验名称是否正确，名字不能以 $ 或者 序列化名称 或者 class为名称
+   *
+   * @param name 属性名称
+   * @return 是否校验通过
+   */
   private boolean isValidPropertyName(String name) {
     return !(name.startsWith("$") || "serialVersionUID".equals(name) || "class".equals(name));
   }
@@ -346,12 +414,15 @@ public class Reflector {
    */
   private Method[] getClassMethods(Class<?> clazz) {
     // 唯一方法 map
+    // 每个方法都有自己的唯一键，用以区别
     Map<String, Method> uniqueMethods = new HashMap<>();
     // 待解析的类
     Class<?> currentClass = clazz;
     // 判断当前待解析类 非空且非Object类
+    // 所有类都是Object的子类，所以上限就是Object
     while (currentClass != null && currentClass != Object.class) {
       // 解析添加唯一方法
+      // 添加当前类的所有方法到唯一标识方法集合中，方法键名为 一个签名值
       addUniqueMethods(uniqueMethods, currentClass.getDeclaredMethods());
 
       // we also need to look for interface methods -
@@ -360,7 +431,7 @@ public class Reflector {
       // 因为该类可能是抽象类
       // 获取当前类的接口
       Class<?>[] interfaces = currentClass.getInterfaces();
-      // 遍历所有的接口
+      // 遍历所有的接口，获取接口是因为有可能接口中存在默认方法，没有在子类中实现的方法
       for (Class<?> anInterface : interfaces) {
 
         // 解析并添加唯一方法

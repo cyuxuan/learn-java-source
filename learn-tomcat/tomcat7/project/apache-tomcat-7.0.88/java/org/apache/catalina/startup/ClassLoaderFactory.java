@@ -160,6 +160,7 @@ public final class ClassLoaderFactory {
             log.debug("Creating new class loader");
 
         // Construct the "class path" for this class loader
+        // 这里存储的是当前这个class loader可以访问的class path
         Set<URL> set = new LinkedHashSet<URL>();
 
         if (repositories != null) {
@@ -283,17 +284,24 @@ public final class ClassLoaderFactory {
      * These two methods would ideally be in the utility class
      * org.apache.tomcat.util.buf.UriUtil but that class is not visible until
      * after the class loaders have been constructed.
+     * 这个方法最好放在util类中，但是classloader构造好之前url类是不可见的
      */
     private static URL buildClassLoaderUrl(String urlString) throws MalformedURLException {
         // URLs passed to class loaders may point to directories that contain
         // JARs. If these URLs are used to construct URLs for resources in a JAR
-        // the URL will be used as is. It is therefore necessary to ensure that
+        // the URL will be used as is. It is therefore(因此) necessary(必要的) to ensure(确保) that
         // the sequence "!/" is not present in a class loader URL.
         String result = urlString.replaceAll("!/", "%21/");
         return new URL(result);
     }
 
 
+    /*
+     * These two methods would ideally be in the utility class
+     * org.apache.tomcat.util.buf.UriUtil but that class is not visible until
+     * after the class loaders have been constructed.
+     * 这个方法最好放在util类中，但是classloader构造好之前url类是不可见的
+     */
     private static URL buildClassLoaderUrl(File file) throws MalformedURLException {
         // Could be a directory or a file
         String fileUrlString = file.toURI().toString();
