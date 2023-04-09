@@ -6,8 +6,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class TestDaoImpl implements TestDao {
 
-
-    @Override
+//    @Override
     public String selectNameById(int id) {
         try {
             Thread.sleep(700);
@@ -17,7 +16,7 @@ public class TestDaoImpl implements TestDao {
         return "1234";
     }
 
-    @Override
+//    @Override
     public String selectSexById(int id) {
         try {
             Thread.sleep(100);

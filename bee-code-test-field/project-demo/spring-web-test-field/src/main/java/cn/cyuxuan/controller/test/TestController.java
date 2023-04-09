@@ -20,7 +20,19 @@ public class TestController {
             e.printStackTrace();
         }
         testService.testMore("123");
-        char[] chars = new char[102400000];
+        char[] chars = new char[104857600];
+        return testService.testService();
+    }
+
+    @GetMapping("/teststr2")
+    public String testStr2() {
+        try{
+            Thread.sleep(500);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        testService.testMore("123");
+        char[] chars = new char[104857600];
         return testService.testService();
     }
 }

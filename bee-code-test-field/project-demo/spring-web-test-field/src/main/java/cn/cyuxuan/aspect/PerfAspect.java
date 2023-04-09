@@ -21,8 +21,8 @@ import org.springframework.stereotype.Component;
  * @author 陈玉轩
  * @since 23.03.26
  */
-@Aspect
-@Component
+//@Aspect
+//@Component
 public class PerfAspect {
 
 

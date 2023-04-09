@@ -1,7 +1,9 @@
 package cn.cyuxuan.dao.test;
 
+import org.springframework.stereotype.Repository;
+
 //@Mapper
-//@Repository
+@Repository
 public interface TestDao {
     String selectNameById(int id);
 
